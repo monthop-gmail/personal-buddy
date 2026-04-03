@@ -6,6 +6,7 @@ services:
     env_file: .env
     volumes:
       - buddy-data:/data/memory
+      - ./credentials.json:/data/credentials.json:ro
     stdin_open: true
     tty: true
 
@@ -16,7 +17,21 @@ services:
     env_file: .env
     volumes:
       - buddy-data:/data/memory
+      - ./credentials.json:/data/credentials.json:ro
     command: ["python", "telegram_bot.py"]
+    restart: unless-stopped
+
+  # Web UI mode
+  web:
+    build: .
+    container_name: personal-buddy-web
+    env_file: .env
+    volumes:
+      - buddy-data:/data/memory
+      - ./credentials.json:/data/credentials.json:ro
+    command: ["python", "web.py"]
+    ports:
+      - "${WEB_PORT:-8080}:8080"
     restart: unless-stopped
 
 volumes:

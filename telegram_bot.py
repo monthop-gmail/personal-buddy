@@ -8,6 +8,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from config import MEMORY_DIR, BUDDY_NAME
 from memory import Memory
 from agent import BuddyAgent
+from scheduler import get_due_reminders
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ agents: dict[int, BuddyAgent] = {}
 def get_agent(chat_id: int) -> BuddyAgent:
     if chat_id not in agents:
         memory = Memory(f"{MEMORY_DIR}/{chat_id}")
-        agents[chat_id] = BuddyAgent(memory)
+        agents[chat_id] = BuddyAgent(memory, chat_id=chat_id)
     return agents[chat_id]
 
 
@@ -27,9 +28,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         f"สวัสดี! ฉันคือ {BUDDY_NAME} 🤖\n"
         f"คุยกับฉันได้เลย ฉันจะจำเรื่องราวของคุณไว้ข้ามเซสชัน\n\n"
-        f"/memories — ดู memory ที่จำไว้\n"
-        f"/forget <id> — ลบ memory ตาม ID\n"
-        f"/reset — ล้างประวัติแชท (memory ยังอยู่)"
+        f"📝 /memories — ดู memory ที่จำไว้\n"
+        f"🗑️ /forget <id> — ลบ memory ตาม ID\n"
+        f"🔄 /reset — ล้างประวัติแชท\n"
+        f"⏰ /reminders — ดู reminder ที่ตั้งไว้\n\n"
+        f"💡 ลองพูดว่า:\n"
+        f'  "เตือนฉันพรุ่งนี้ 9 โมง ว่าประชุมทีม"\n'
+        f'  "วันนี้มีนัดอะไรบ้าง"\n'
+        f'  "มีเมลใหม่ไหม"'
     )
 
 
@@ -61,6 +67,19 @@ async def forget_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"ไม่พบ memory #{mid}")
 
 
+async def reminders_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    from scheduler import list_reminders
+    chat_id = update.effective_chat.id
+    pending = list_reminders(chat_id)
+    if not pending:
+        await update.message.reply_text("ไม่มี reminder ที่ตั้งไว้")
+        return
+    lines = []
+    for r in pending:
+        lines.append(f"#{r['id']} ⏰ {r['remind_at'][:16]} — {r['message']}")
+    await update.message.reply_text("\n".join(lines))
+
+
 async def reset_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     if chat_id in agents:
@@ -75,14 +94,31 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(response)
 
 
+async def check_reminders(context: ContextTypes.DEFAULT_TYPE):
+    """Periodic job to check and send due reminders."""
+    due = get_due_reminders()
+    for r in due:
+        try:
+            await context.bot.send_message(
+                chat_id=r["chat_id"],
+                text=f"⏰ เตือนความจำ!\n\n{r['message']}",
+            )
+        except Exception as e:
+            logger.error(f"Failed to send reminder #{r['id']}: {e}")
+
+
 def run_bot(token: str):
     app = Application.builder().token(token).build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("memories", memories_cmd))
     app.add_handler(CommandHandler("forget", forget_cmd))
+    app.add_handler(CommandHandler("reminders", reminders_cmd))
     app.add_handler(CommandHandler("reset", reset_cmd))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+    # Check reminders every 30 seconds
+    app.job_queue.run_repeating(check_reminders, interval=30, first=5)
 
     logger.info(f"{BUDDY_NAME} Telegram bot started!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)

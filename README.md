@@ -1,77 +1,97 @@
 # Personal Buddy
 
-Personal AI chat agent with persistent memory, powered by Claude API.
+Personal AI agent with persistent memory, powered by Claude API.
 
-Buddy remembers what you tell it across sessions — your preferences, facts about you, and anything you ask it to remember.
+Buddy remembers what you tell it, manages your calendar, reads your email, and sends you reminders — all from a single chat interface.
 
 ## Features
 
-- **Conversational chat** — natural, friendly responses in your language
-- **Persistent memory** — stores and recalls information across sessions using Claude's tool use
-- **Memory management** — search, list, and delete memories on demand
-- **Telegram bot** — chat with your buddy from your phone
-- **Dockerized** — runs in a container with data stored in a Docker volume
+- **Persistent memory** — remembers facts about you across sessions, with semantic search
+- **Auto-summarize** — automatically summarizes conversations to build long-term context
+- **Google Calendar** — view and create events ("วันนี้มีนัดอะไร", "สร้างนัดประชุมพรุ่งนี้ 10 โมง")
+- **Gmail** — read and send emails ("มีเมลใหม่ไหม", "ส่งเมลหา boss@company.com")
+- **Reminders** — set timed reminders via Telegram ("เตือนฉัน 5 โมงเย็น ว่าไปซื้อของ")
+- **3 interfaces** — CLI, Telegram bot, Web UI
 
 ## Quick Start
 
 ```bash
-# Clone
 git clone https://github.com/monthop-gmail/personal-buddy.git
 cd personal-buddy
-
-# Configure
 cp .env.example .env
-# Edit .env and add your ANTHROPIC_API_KEY + TELEGRAM_BOT_TOKEN
+# Edit .env — add ANTHROPIC_API_KEY and TELEGRAM_BOT_TOKEN
 ```
 
-### CLI mode
-
-```bash
-docker compose run --rm buddy
-```
-
-### Telegram bot mode
+### Telegram bot (recommended)
 
 ```bash
 docker compose up telegram -d
 ```
 
-#### Telegram commands
+### Web UI
+
+```bash
+docker compose up web -d
+# Open http://your-server:8080
+```
+
+### CLI
+
+```bash
+docker compose run --rm buddy
+```
+
+## Telegram Commands
 
 | Command | Description |
 |---------|-------------|
-| `/start` | Welcome message |
+| `/start` | Welcome + help |
 | `/memories` | List all saved memories |
-| `/forget <id>` | Delete a memory by ID |
+| `/forget <id>` | Delete a memory |
+| `/reminders` | List pending reminders |
 | `/reset` | Clear chat history (memories persist) |
+
+## Google Calendar & Gmail Setup
+
+1. Create a project in [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable **Calendar API** and **Gmail API**
+3. Create **OAuth 2.0 credentials** (Desktop app)
+4. Download as `credentials.json` into the project root
+5. Run CLI mode once to complete OAuth flow: `docker compose run --rm buddy`
 
 ## Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `ANTHROPIC_API_KEY` | (required) | Your Anthropic API key |
+| `ANTHROPIC_API_KEY` | (required) | Anthropic API key |
 | `TELEGRAM_BOT_TOKEN` | (required for Telegram) | Token from @BotFather |
-| `MODEL` | `claude-sonnet-4-20250514` | Claude model to use |
-| `BUDDY_NAME` | `Buddy` | Your buddy's display name |
-| `MAX_HISTORY` | `50` | Max conversation turns to keep in context |
+| `MODEL` | `claude-sonnet-4-20250514` | Claude model |
+| `BUDDY_NAME` | `Buddy` | Display name |
+| `MAX_HISTORY` | `50` | Conversation turns in context |
+| `AUTO_SUMMARIZE_EVERY` | `10` | Summarize every N messages |
+| `WEB_PORT` | `8080` | Web UI port |
+| `GOOGLE_CREDENTIALS_FILE` | `/data/credentials.json` | Google OAuth credentials |
 
 ## Architecture
 
 Inspired by the "Bones & Soul" pattern:
 
 - **Bones** — recomputed each session (conversation history, system prompt)
-- **Soul** — persistent data that survives restarts (memories stored as JSON in a Docker volume)
+- **Soul** — persistent data (memories + conversation summaries stored as JSON)
 
-The agent uses Claude's [tool use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use) to decide when to save, search, or delete memories autonomously.
+The agent uses Claude's [tool use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use) to autonomously decide when to save memories, search context, call Google APIs, or set reminders.
 
 ## Project Structure
 
 ```
 personal-buddy/
 ├── main.py            # CLI chat loop
-├── telegram_bot.py    # Telegram bot interface
-├── agent.py           # Claude API client + tool handling
-├── memory.py          # Persistent JSON memory store
+├── telegram_bot.py    # Telegram bot + reminder scheduler
+├── web.py             # FastAPI + WebSocket chat UI
+├── agent.py           # Claude API client + all tool handling
+├── memory.py          # Persistent memory + semantic search + auto-summarize
+├── google_tools.py    # Google Calendar + Gmail integration
+├── scheduler.py       # Reminder storage + due-checking
 ├── config.py          # Settings and system prompt
 ├── requirements.txt
 ├── Dockerfile
