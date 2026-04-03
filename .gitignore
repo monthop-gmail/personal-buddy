@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 credentials.json
 google_token.pickle
+channel/node_modules/
+channel/bun.lock
+channel/dist/

@@ -31,6 +31,14 @@
 - `people` — คนรอบข้าง
 - `fact` — ข้อเท็จจริงทั่วไป
 
+## Telegram Channel
+
+เมื่อได้รับข้อความจาก `<channel source="personal-buddy-telegram">`:
+- นี่คือข้อความจาก Telegram ของผู้ใช้
+- ใช้ `reply` tool เพื่อตอบกลับเสมอ ส่ง `chat_id` จาก tag กลับไปด้วย
+- ตอบสั้นกระชับ เพราะอ่านบนมือถือ
+- ถ้าข้อความเกี่ยวกับ memory/calendar/email → ใช้ MCP tools ก่อน แล้วค่อย reply ผลลัพธ์
+
 ## MCP Tools ที่ใช้ได้
 
 Tools เหล่านี้มาจาก `personal-buddy` MCP server:
@@ -56,3 +64,5 @@ Tools เหล่านี้มาจาก `personal-buddy` MCP server:
 - `scheduler.py` — reminder system
 - `telegram_bot.py` — Telegram bot interface
 - `web.py` — FastAPI Web UI
+- `channel/buddy-channel.ts` — Telegram Channel สำหรับ Claude Code (two-way + permission relay)
+- `channel/setup.sh` — setup script สำหรับ channel

@@ -11,7 +11,8 @@ Buddy remembers what you tell it, manages your calendar, reads your email, and s
 - **Google Calendar** — view and create events ("วันนี้มีนัดอะไร", "สร้างนัดประชุมพรุ่งนี้ 10 โมง")
 - **Gmail** — read and send emails ("มีเมลใหม่ไหม", "ส่งเมลหา boss@company.com")
 - **Reminders** — set timed reminders via Telegram ("เตือนฉัน 5 โมงเย็น ว่าไปซื้อของ")
-- **4 interfaces** — CLI, Telegram bot, Web UI, Claude Code (MCP)
+- **Telegram Channel for Claude Code** — two-way chat + permission relay from your phone
+- **5 interfaces** — CLI, Telegram bot, Web UI, Claude Code (MCP tools), Claude Code (Telegram Channel)
 
 ## Quick Start
 
@@ -37,7 +38,24 @@ claude mcp add personal-buddy python3 /path/to/mcp_server.py \
 
 Restart Claude Code, then ask naturally: "จำไว้ว่า...", "วันนี้มีนัดอะไร", "มีเมลใหม่ไหม"
 
-### Telegram bot (recommended)
+### Claude Code + Telegram Channel (two-way chat)
+
+Chat with Claude Code from your phone, with permission relay — approve/deny tool use remotely.
+
+```bash
+# Setup
+export TELEGRAM_BOT_TOKEN=your-token
+cd channel && ./setup.sh
+
+# Start Claude Code with the channel
+claude --dangerously-load-development-channels server:personal-buddy-telegram
+```
+
+First message to the bot auto-pairs your Telegram ID. After that:
+- Send any message → Claude Code receives and responds via Telegram
+- When Claude needs permission → you get a prompt on Telegram, reply `yes <id>` or `no <id>`
+
+### Telegram bot (recommended for standalone)
 
 ```bash
 docker compose up telegram -d
@@ -86,6 +104,7 @@ docker compose run --rm buddy
 | `AUTO_SUMMARIZE_EVERY` | `10` | Summarize every N messages |
 | `WEB_PORT` | `8080` | Web UI port |
 | `GOOGLE_CREDENTIALS_FILE` | `/data/credentials.json` | Google OAuth credentials |
+| `ALLOWED_TELEGRAM_IDS` | (auto-pair) | Comma-separated Telegram user IDs for channel |
 
 ## Architecture
 
@@ -109,6 +128,10 @@ personal-buddy/
 ├── scheduler.py       # Reminder storage + due-checking
 ├── mcp_server.py      # MCP server for Claude Code integration
 ├── setup_claude_code.sh  # One-line setup script
+├── channel/
+│   ├── buddy-channel.ts  # Telegram Channel for Claude Code (two-way + permission relay)
+│   ├── setup.sh          # Channel setup script
+│   └── package.json
 ├── config.py          # Settings and system prompt
 ├── requirements.txt
 ├── Dockerfile
