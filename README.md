@@ -11,7 +11,7 @@ Buddy remembers what you tell it, manages your calendar, reads your email, and s
 - **Google Calendar** — view and create events ("วันนี้มีนัดอะไร", "สร้างนัดประชุมพรุ่งนี้ 10 โมง")
 - **Gmail** — read and send emails ("มีเมลใหม่ไหม", "ส่งเมลหา boss@company.com")
 - **Reminders** — set timed reminders via Telegram ("เตือนฉัน 5 โมงเย็น ว่าไปซื้อของ")
-- **3 interfaces** — CLI, Telegram bot, Web UI
+- **4 interfaces** — CLI, Telegram bot, Web UI, Claude Code (MCP)
 
 ## Quick Start
 
@@ -21,6 +21,21 @@ cd personal-buddy
 cp .env.example .env
 # Edit .env — add ANTHROPIC_API_KEY and TELEGRAM_BOT_TOKEN
 ```
+
+### Claude Code (MCP integration)
+
+```bash
+# One-time setup
+export ANTHROPIC_API_KEY=sk-ant-...
+./setup_claude_code.sh
+
+# Or manually:
+claude mcp add personal-buddy python3 /path/to/mcp_server.py \
+  -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
+  -e MEMORY_DIR="$HOME/.personal-buddy/memory"
+```
+
+Then in Claude Code, just ask naturally: "จำไว้ว่า...", "วันนี้มีนัดอะไร", "มีเมลใหม่ไหม"
 
 ### Telegram bot (recommended)
 
@@ -92,6 +107,8 @@ personal-buddy/
 ├── memory.py          # Persistent memory + semantic search + auto-summarize
 ├── google_tools.py    # Google Calendar + Gmail integration
 ├── scheduler.py       # Reminder storage + due-checking
+├── mcp_server.py      # MCP server for Claude Code integration
+├── setup_claude_code.sh  # One-line setup script
 ├── config.py          # Settings and system prompt
 ├── requirements.txt
 ├── Dockerfile
