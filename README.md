@@ -2,15 +2,15 @@
 
 Personal AI assistant that runs inside [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
-Inspired by the "Bones & Soul" pattern from Claude Buddy — your buddy remembers who you are, manages your calendar, reads your email, and sends you reminders. All from your terminal or phone.
+Built on Claude Code's official extension system — [CLAUDE.md](https://code.claude.com/docs/en/memory) for personality, [MCP](https://code.claude.com/docs/en/mcp) for tools, and [Channels](https://code.claude.com/docs/en/channels) for Telegram/web chat. Your buddy remembers who you are, manages your calendar, reads your email, and sends you reminders.
 
 ## How it works
 
 Claude Code is the brain. This project adds:
 
-- **MCP tools server** — persistent memory, Google Calendar, Gmail, reminders (12 tools)
-- **CLAUDE.md** — personality and behavior rules that make Claude act as your personal buddy
-- **Official channel plugins** — Telegram and web chat, built and maintained by Anthropic
+- **[CLAUDE.md](https://code.claude.com/docs/en/memory)** — personality and behavior rules, loaded every session
+- **[MCP tools server](https://code.claude.com/docs/en/mcp)** — persistent memory, Google Calendar, Gmail, reminders (12 tools)
+- **[Official channel plugins](https://code.claude.com/docs/en/channels)** — Telegram and web chat, built and maintained by Anthropic
 
 No separate API key needed for the tools server. Claude Code handles all the reasoning.
 
@@ -112,16 +112,20 @@ Done! Chat with your buddy from Telegram or the web UI.
                        (JSON files) (Calendar/Gmail)  (JSON files)
 ```
 
-**Bones** — recomputed each session: CLAUDE.md personality, conversation context
-**Soul** — persists across sessions: memories, reminders (JSON files in `~/.personal-buddy/`)
+Follows the same pattern as Claude Code's built-in `/buddy` companion:
+
+- **Recomputed each session** — CLAUDE.md personality rules, conversation context
+- **Persisted across sessions** — memories, reminders (JSON files in `~/.personal-buddy/`)
+
+The `/buddy` companion persists static data (species, rarity, stats) and regenerates personality via Claude API each session. Personal Buddy applies this same pattern: static data persists in JSON, while Claude Code recomputes behavior from CLAUDE.md every session.
 
 ## Project Structure
 
 ```
 personal-buddy/
-├── CLAUDE.md          # Buddy personality + behavior rules
+├── CLAUDE.md          # Personality rules (recomputed each session)
 ├── mcp_server.py      # MCP tools server (12 tools, no API key needed)
-├── memory.py          # Persistent JSON memory store
+├── memory.py          # Persistent memory store (persisted across sessions)
 ├── google_tools.py    # Google Calendar + Gmail integration
 ├── scheduler.py       # Reminder storage
 ├── config.py          # Settings (memory dir, credentials path)
