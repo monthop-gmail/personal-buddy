@@ -1,20 +1,32 @@
 # Personal Buddy
 
-Personal AI assistant for Claude Code — memory, Google Calendar, Gmail, and reminders.
+Personal AI assistant that runs inside [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
-Uses Claude Code as the brain with MCP tools for persistence, and official channel plugins for Telegram and web chat.
+Inspired by the "Bones & Soul" pattern from Claude Buddy — your buddy remembers who you are, manages your calendar, reads your email, and sends you reminders. All from your terminal or phone.
+
+## How it works
+
+Claude Code is the brain. This project adds:
+
+- **MCP tools server** — persistent memory, Google Calendar, Gmail, reminders (12 tools)
+- **CLAUDE.md** — personality and behavior rules that make Claude act as your personal buddy
+- **Official channel plugins** — Telegram and web chat, built and maintained by Anthropic
+
+No separate API key needed for the tools server. Claude Code handles all the reasoning.
 
 ## Features
 
-- **Persistent memory** — remembers facts about you across sessions
-- **Google Calendar** — view and create events
-- **Gmail** — read and send emails
-- **Reminders** — set timed reminders
-- **Telegram** — chat with Claude Code from your phone (official plugin)
-- **Web chat** — localhost chat UI via fakechat (official plugin)
-- **Permission relay** — approve/deny tool use from Telegram
+- **Persistent memory** — remembers facts, preferences, and people across sessions
+- **Google Calendar** — view upcoming events, create new ones
+- **Gmail** — read inbox, send emails (confirms before sending)
+- **Reminders** — set timed reminders, check what's due
+- **Telegram chat** — talk to your buddy from your phone via [official plugin](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/telegram)
+- **Web chat** — localhost chat UI via [fakechat plugin](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/fakechat)
+- **Permission relay** — approve/deny Claude's tool use from Telegram
 
 ## Quick Start
+
+### 1. Setup MCP tools
 
 ```bash
 git clone https://github.com/monthop-gmail/personal-buddy.git
@@ -22,7 +34,7 @@ cd personal-buddy
 ./setup.sh
 ```
 
-### 1. Install plugins (inside Claude Code)
+### 2. Install channel plugins (inside Claude Code)
 
 ```
 /plugin install telegram@claude-plugins-official
@@ -31,25 +43,46 @@ cd personal-buddy
 /telegram:configure <your-bot-token>
 ```
 
-### 2. Start with channels
+> Get a bot token from [@BotFather](https://t.me/BotFather) on Telegram.
+
+### 3. Start with channels
 
 ```bash
-# Telegram
+# Telegram only
 claude --channels plugin:telegram@claude-plugins-official
 
-# Web chat (localhost:8787)
+# Web chat only (localhost:8787)
 claude --channels plugin:fakechat@claude-plugins-official
 
 # Both
 claude --channels plugin:telegram@claude-plugins-official plugin:fakechat@claude-plugins-official
 ```
 
-### 3. Pair Telegram
+### 4. Pair Telegram
 
 1. Send any message to your bot on Telegram
 2. Bot replies with a pairing code
 3. In Claude Code: `/telegram:access pair <code>`
 4. Lock down: `/telegram:access policy allowlist`
+
+Done! Chat with your buddy from Telegram or the web UI.
+
+## MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `save_memory` | Save facts, preferences, people |
+| `search_memory` | Search saved memories |
+| `list_memories` | Show recent memories |
+| `delete_memory` | Remove a memory by ID |
+| `list_calendar_events` | View upcoming Google Calendar events |
+| `create_calendar_event` | Create a new calendar event |
+| `list_emails` | Read emails from Gmail |
+| `send_email` | Send an email via Gmail |
+| `set_reminder` | Set a timed reminder |
+| `check_reminders` | Check for due reminders |
+| `list_reminders` | Show pending reminders |
+| `delete_reminder` | Remove a reminder by ID |
 
 ## Google Calendar & Gmail Setup
 
@@ -57,35 +90,41 @@ claude --channels plugin:telegram@claude-plugins-official plugin:fakechat@claude
 2. Enable **Calendar API** and **Gmail API**
 3. Create **OAuth 2.0 credentials** (Desktop app)
 4. Download as `credentials.json` to `~/.personal-buddy/`
-5. First use will open a browser for OAuth flow
+5. First use triggers a browser OAuth flow
 
 ## Architecture
 
 ```
-📱 Telegram ──→ Official Telegram Plugin ──→ Claude Code session
-🌐 Browser  ──→ Official Fakechat Plugin ──→ Claude Code session
-                                                    │
-                                              MCP Tools Server
-                                              (personal-buddy)
-                                                    │
-                                    ┌───────────────┼───────────────┐
-                                    │               │               │
-                                 Memory      Google APIs      Reminders
-                              (JSON files)  (Calendar/Gmail)  (JSON files)
+📱 Telegram ──→ Official Telegram Plugin ──┐
+🌐 Browser  ──→ Official Fakechat Plugin ──┤
+💻 Terminal ────────────────────────────────┘
+                                            │
+                                     Claude Code (brain)
+                                            │
+                                     CLAUDE.md (personality)
+                                            │
+                                     MCP Tools Server
+                                    (personal-buddy)
+                                            │
+                            ┌───────────────┼───────────────┐
+                            │               │               │
+                         Memory      Google APIs      Reminders
+                       (JSON files) (Calendar/Gmail)  (JSON files)
 ```
 
-Claude Code is the brain — no separate API key needed for the MCP server. The official channel plugins handle Telegram/web chat with pairing, sender gating, and permission relay built in.
+**Bones** — recomputed each session: CLAUDE.md personality, conversation context
+**Soul** — persists across sessions: memories, reminders (JSON files in `~/.personal-buddy/`)
 
 ## Project Structure
 
 ```
 personal-buddy/
 ├── CLAUDE.md          # Buddy personality + behavior rules
-├── mcp_server.py      # MCP tools server (memory, calendar, gmail, reminders)
+├── mcp_server.py      # MCP tools server (12 tools, no API key needed)
 ├── memory.py          # Persistent JSON memory store
 ├── google_tools.py    # Google Calendar + Gmail integration
 ├── scheduler.py       # Reminder storage
-├── config.py          # Settings
+├── config.py          # Settings (memory dir, credentials path)
 ├── setup.sh           # One-time setup script
 └── requirements.txt   # Python dependencies (mcp, google-api)
 ```
