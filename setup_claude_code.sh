@@ -1,26 +1,24 @@
 #!/bin/bash
 # Setup Personal Buddy as MCP server for Claude Code
+# No API key needed — Claude Code is the brain
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+MEMORY_DIR="${HOME}/.personal-buddy/memory"
 
 echo "🔧 Setting up Personal Buddy MCP server for Claude Code..."
 
 # Create memory directory
-mkdir -p ~/.personal-buddy/memory
+mkdir -p "$MEMORY_DIR"
 
 # Add to Claude Code settings
 claude mcp add personal-buddy \
   python3 "${SCRIPT_DIR}/mcp_server.py" \
-  -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}" \
-  -e MEMORY_DIR="${HOME}/.personal-buddy/memory"
+  -e MEMORY_DIR="$MEMORY_DIR"
 
 echo ""
-echo "✅ Done! Personal Buddy is now available in Claude Code."
+echo "✅ Done! Restart Claude Code, then try:"
 echo ""
-echo "📝 Tools available:"
-echo "   • save_memory / search_memory / list_memories / delete_memory"
-echo "   • list_calendar_events / create_calendar_event"
-echo "   • list_emails / send_email"
-echo "   • set_reminder / list_reminders / delete_reminder"
-echo ""
-echo "💡 Try: ask Claude Code 'จำไว้ว่าฉันชอบกาแฟเย็น' or 'วันนี้มีนัดอะไร'"
+echo '   "จำไว้ว่าฉันชอบกาแฟเย็น"'
+echo '   "ค้นหา memory เรื่องกาแฟ"'
+echo '   "วันนี้มีนัดอะไร"'
+echo '   "เตือนฉัน 5 โมงเย็น ว่าประชุม"'

@@ -24,18 +24,18 @@ cp .env.example .env
 
 ### Claude Code (MCP integration)
 
+No API key needed — Claude Code is the brain.
+
 ```bash
 # One-time setup
-export ANTHROPIC_API_KEY=sk-ant-...
 ./setup_claude_code.sh
 
 # Or manually:
 claude mcp add personal-buddy python3 /path/to/mcp_server.py \
-  -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
   -e MEMORY_DIR="$HOME/.personal-buddy/memory"
 ```
 
-Then in Claude Code, just ask naturally: "จำไว้ว่า...", "วันนี้มีนัดอะไร", "มีเมลใหม่ไหม"
+Restart Claude Code, then ask naturally: "จำไว้ว่า...", "วันนี้มีนัดอะไร", "มีเมลใหม่ไหม"
 
 ### Telegram bot (recommended)
 

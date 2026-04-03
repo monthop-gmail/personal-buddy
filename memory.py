@@ -2,9 +2,6 @@ import json
 import os
 from datetime import datetime
 
-import anthropic
-from config import ANTHROPIC_API_KEY, MODEL
-
 
 class Memory:
     """Persistent memory store — the 'Soul' of the buddy."""
@@ -19,8 +16,11 @@ class Memory:
         self._client = None
 
     @property
-    def client(self) -> anthropic.Anthropic:
+    def client(self):
+        """Lazy-load anthropic client — only needed for semantic_search."""
         if self._client is None:
+            import anthropic
+            from config import ANTHROPIC_API_KEY
             self._client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
         return self._client
 
@@ -76,6 +76,7 @@ class Memory:
             for m in self.memories
         )
 
+        from config import MODEL
         response = self.client.messages.create(
             model=MODEL,
             max_tokens=256,

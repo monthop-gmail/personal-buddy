@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""MCP Server — exposes Personal Buddy tools to Claude Code."""
+"""MCP Server — exposes Personal Buddy tools to Claude Code.
+
+No ANTHROPIC_API_KEY needed — Claude Code is the brain.
+"""
 
 import json
 import os
@@ -10,12 +13,10 @@ from mcp.server.fastmcp import FastMCP
 # Ensure project modules are importable
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Override MEMORY_DIR for local use (not Docker)
-if not os.getenv("MEMORY_DIR"):
-    os.environ["MEMORY_DIR"] = os.path.expanduser("~/.personal-buddy/memory")
+MEMORY_DIR = os.getenv("MEMORY_DIR", os.path.expanduser("~/.personal-buddy/memory"))
 
+# Lightweight memory that doesn't import anthropic
 from memory import Memory
-from config import MEMORY_DIR
 
 mcp = FastMCP("personal-buddy", instructions="Personal AI buddy — memory, calendar, gmail, reminders")
 
@@ -34,8 +35,8 @@ def save_memory(content: str, category: str = "general") -> str:
 
 @mcp.tool()
 def search_memory(query: str) -> str:
-    """ค้นหา memory ที่บันทึกไว้ (semantic search — ค้นหาตามความหมายได้)"""
-    results = _memory.semantic_search(query)
+    """ค้นหา memory ที่บันทึกไว้ (keyword search — Claude Code ทำ semantic reasoning เอง)"""
+    results = _memory.search(query)
     if not results:
         return json.dumps({"results": [], "message": "ไม่พบ memory ที่เกี่ยวข้อง"}, ensure_ascii=False)
     return json.dumps(results, ensure_ascii=False)
