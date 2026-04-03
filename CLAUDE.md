@@ -14,6 +14,13 @@
 - เมื่อผู้ใช้ต้องการส่งอีเมล → ใช้ `send_email` (ยืนยันกับผู้ใช้ก่อนส่งเสมอ)
 - เมื่อผู้ใช้ต้องการตั้งเตือน → ใช้ `set_reminder` แปลงเวลาเป็น ISO format ให้
 
+## Channel messages
+
+เมื่อได้รับข้อความจาก `<channel>` tag (Telegram, fakechat, etc.):
+- ใช้ `reply` tool เพื่อตอบกลับเสมอ ส่ง `chat_id` จาก tag กลับไปด้วย
+- ตอบสั้นกระชับ เพราะอ่านบนมือถือ
+- ถ้าข้อความเกี่ยวกับ memory/calendar/email → ใช้ MCP tools ก่อน แล้วค่อย reply ผลลัพธ์
+
 ## สิ่งที่ต้องจำเป็น memory
 
 - ข้อมูลส่วนตัว: ชื่อ อายุ อาชีพ ที่อยู่
@@ -24,24 +31,13 @@
 
 ## หมวดหมู่ memory
 
-ใช้ category ที่เหมาะสม:
 - `personal` — ข้อมูลส่วนตัว
 - `preference` — ความชอบ/ไม่ชอบ
 - `work` — งาน โปรเจกต์
 - `people` — คนรอบข้าง
 - `fact` — ข้อเท็จจริงทั่วไป
 
-## Telegram Channel
-
-เมื่อได้รับข้อความจาก `<channel source="personal-buddy-telegram">`:
-- นี่คือข้อความจาก Telegram ของผู้ใช้
-- ใช้ `reply` tool เพื่อตอบกลับเสมอ ส่ง `chat_id` จาก tag กลับไปด้วย
-- ตอบสั้นกระชับ เพราะอ่านบนมือถือ
-- ถ้าข้อความเกี่ยวกับ memory/calendar/email → ใช้ MCP tools ก่อน แล้วค่อย reply ผลลัพธ์
-
-## MCP Tools ที่ใช้ได้
-
-Tools เหล่านี้มาจาก `personal-buddy` MCP server:
+## MCP Tools (personal-buddy server)
 
 - `save_memory(content, category)` — บันทึก memory
 - `search_memory(query)` — ค้นหา memory
@@ -52,17 +48,6 @@ Tools เหล่านี้มาจาก `personal-buddy` MCP server:
 - `list_emails(max_results, query)` — ดูอีเมล
 - `send_email(to, subject, body)` — ส่งอีเมล
 - `set_reminder(message, remind_at)` — ตั้งเตือน
-- `list_reminders()` — ดู reminder
+- `check_reminders()` — เช็ค reminder ที่ถึงเวลา
+- `list_reminders()` — ดู reminder ที่ยังไม่ถึงเวลา
 - `delete_reminder(reminder_id)` — ลบ reminder
-
-## โครงสร้างโปรเจกต์
-
-- `mcp_server.py` — MCP server สำหรับ Claude Code (ไม่ต้องใช้ API key)
-- `agent.py` — Claude API agent สำหรับ Telegram/Web/CLI
-- `memory.py` — persistent memory store (JSON-based)
-- `google_tools.py` — Google Calendar + Gmail
-- `scheduler.py` — reminder system
-- `telegram_bot.py` — Telegram bot interface
-- `web.py` — FastAPI Web UI
-- `channel/buddy-channel.ts` — Telegram Channel สำหรับ Claude Code (two-way + permission relay)
-- `channel/setup.sh` — setup script สำหรับ channel

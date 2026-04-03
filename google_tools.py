@@ -14,8 +14,10 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
 ]
 
-TOKEN_DIR = os.getenv("MEMORY_DIR", "/data/memory")
-CREDENTIALS_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE", "/data/credentials.json")
+from config import MEMORY_DIR, GOOGLE_CREDENTIALS_FILE
+
+TOKEN_DIR = MEMORY_DIR
+CREDENTIALS_FILE = GOOGLE_CREDENTIALS_FILE
 
 
 def _get_creds():

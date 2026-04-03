@@ -1,10 +1,12 @@
-"""Reminder scheduler — stores reminders and checks them periodically."""
+"""Reminder scheduler — stores reminders as JSON."""
 
 import json
 import os
 from datetime import datetime
 
-REMINDERS_FILE = os.path.join(os.getenv("MEMORY_DIR", "/data/memory"), "reminders.json")
+from config import MEMORY_DIR
+
+REMINDERS_FILE = os.path.join(MEMORY_DIR, "reminders.json")
 
 
 def _load() -> list[dict]:
@@ -20,16 +22,21 @@ def _save(reminders: list[dict]):
         json.dump(reminders, f, ensure_ascii=False, indent=2)
 
 
-def add_reminder(chat_id: int, message: str, remind_at: str) -> dict:
+def _next_id(reminders: list[dict]) -> int:
+    if not reminders:
+        return 1
+    return max(r["id"] for r in reminders) + 1
+
+
+def add_reminder(message: str, remind_at: str) -> dict:
     """Add a reminder. remind_at should be ISO format datetime."""
     reminders = _load()
     entry = {
-        "id": len(reminders) + 1,
-        "chat_id": chat_id,
+        "id": _next_id(reminders),
         "message": message,
         "remind_at": remind_at,
         "created_at": datetime.now().isoformat(),
-        "sent": False,
+        "done": False,
     }
     reminders.append(entry)
     _save(reminders)
@@ -37,14 +44,14 @@ def add_reminder(chat_id: int, message: str, remind_at: str) -> dict:
 
 
 def get_due_reminders() -> list[dict]:
-    """Get all reminders that are due and not yet sent."""
+    """Get all reminders that are due and not yet done."""
     reminders = _load()
     now = datetime.now()
     due = []
     changed = False
     for r in reminders:
-        if not r["sent"] and datetime.fromisoformat(r["remind_at"]) <= now:
-            r["sent"] = True
+        if not r["done"] and datetime.fromisoformat(r["remind_at"]) <= now:
+            r["done"] = True
             changed = True
             due.append(r)
     if changed:
@@ -52,10 +59,10 @@ def get_due_reminders() -> list[dict]:
     return due
 
 
-def list_reminders(chat_id: int) -> list[dict]:
-    """List pending reminders for a chat."""
+def list_pending() -> list[dict]:
+    """List all pending reminders."""
     reminders = _load()
-    return [r for r in reminders if r["chat_id"] == chat_id and not r["sent"]]
+    return [r for r in reminders if not r["done"]]
 
 
 def delete_reminder(reminder_id: int) -> bool:
