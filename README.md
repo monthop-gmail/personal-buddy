@@ -1,32 +1,32 @@
 # Personal Buddy
 
-Personal AI assistant that runs inside [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+AI assistant ส่วนตัวที่รันบน [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
 
-Built on Claude Code's official extension system — [CLAUDE.md](https://code.claude.com/docs/en/memory) for personality, [MCP](https://code.claude.com/docs/en/mcp) for tools, and [Channels](https://code.claude.com/docs/en/channels) for Telegram/web chat. Your buddy remembers who you are, manages your calendar, reads your email, and sends you reminders.
+สร้างบนระบบ extension อย่างเป็นทางการของ Claude Code — [CLAUDE.md](https://code.claude.com/docs/en/memory) สำหรับบุคลิก, [MCP](https://code.claude.com/docs/en/mcp) สำหรับ tools, และ [Channels](https://code.claude.com/docs/en/channels) สำหรับ Telegram/web chat Buddy จะจำเรื่องของคุณ จัดการปฏิทิน อ่านอีเมล และเตือนความจำให้
 
-## How it works
+## วิธีการทำงาน
 
-Claude Code is the brain. This project adds:
+Claude Code เป็นสมอง โปรเจกต์นี้เพิ่ม:
 
-- **[CLAUDE.md](https://code.claude.com/docs/en/memory)** — personality and behavior rules, loaded every session
-- **[MCP tools server](https://code.claude.com/docs/en/mcp)** — persistent memory, Google Calendar, Gmail, reminders (12 tools)
-- **[Official channel plugins](https://code.claude.com/docs/en/channels)** — Telegram and web chat, built and maintained by Anthropic
+- **[CLAUDE.md](https://code.claude.com/docs/en/memory)** — กฎบุคลิกและพฤติกรรม โหลดใหม่ทุกเซสชัน
+- **[MCP tools server](https://code.claude.com/docs/en/mcp)** — memory ถาวร, Google Calendar, Gmail, reminders (12 tools)
+- **[Official channel plugins](https://code.claude.com/docs/en/channels)** — Telegram และ web chat สร้างและดูแลโดย Anthropic
 
-No separate API key needed for the tools server. Claude Code handles all the reasoning.
+ไม่ต้องใช้ API key แยก — Claude Code จัดการการคิดทั้งหมดเอง
 
-## Features
+## ฟีเจอร์
 
-- **Persistent memory** — remembers facts, preferences, and people across sessions
-- **Google Calendar** — view upcoming events, create new ones
-- **Gmail** — read inbox, send emails (confirms before sending)
-- **Reminders** — set timed reminders, check what's due
-- **Telegram chat** — talk to your buddy from your phone via [official plugin](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/telegram)
-- **Web chat** — localhost chat UI via [fakechat plugin](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/fakechat)
-- **Permission relay** — approve/deny Claude's tool use from Telegram
+- **Memory ถาวร** — จำข้อมูล ความชอบ และคนรอบข้างข้ามเซสชัน
+- **Google Calendar** — ดูนัดหมาย สร้างนัดใหม่
+- **Gmail** — อ่านเมล ส่งเมล (ยืนยันก่อนส่งเสมอ)
+- **Reminders** — ตั้งเตือนความจำ เช็คว่าอะไรถึงเวลา
+- **Telegram** — คุยกับ buddy จากมือถือผ่าน [official plugin](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/telegram)
+- **Web chat** — หน้าเว็บแชทบน localhost ผ่าน [fakechat plugin](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/fakechat)
+- **Permission relay** — อนุมัติ/ปฏิเสธการใช้ tools จาก Telegram ได้
 
-## Quick Start
+## เริ่มต้นใช้งาน
 
-### 1. Setup MCP tools
+### 1. ติดตั้ง MCP tools
 
 ```bash
 git clone https://github.com/monthop-gmail/personal-buddy.git
@@ -34,74 +34,74 @@ cd personal-buddy
 ./setup.sh
 ```
 
-### 2. Install channel plugins (inside Claude Code)
+### 2. ติดตั้ง channel plugins (ใน Claude Code)
 
 ```
 /plugin install telegram@claude-plugins-official
 /plugin install fakechat@claude-plugins-official
 /reload-plugins
-/telegram:configure <your-bot-token>
+/telegram:configure <bot-token-ของคุณ>
 ```
 
-> Get a bot token from [@BotFather](https://t.me/BotFather) on Telegram.
+> สร้าง bot token จาก [@BotFather](https://t.me/BotFather) บน Telegram
 
-### 3. Start with channels
+### 3. เปิดใช้งานพร้อม channels
 
 ```bash
-# Telegram only
+# Telegram อย่างเดียว
 claude --channels plugin:telegram@claude-plugins-official
 
-# Web chat only (localhost:8787)
+# Web chat อย่างเดียว (localhost:8787)
 claude --channels plugin:fakechat@claude-plugins-official
 
-# Both
+# ทั้งคู่
 claude --channels plugin:telegram@claude-plugins-official plugin:fakechat@claude-plugins-official
 ```
 
-### 4. Pair Telegram
+### 4. จับคู่ Telegram
 
-1. Send any message to your bot on Telegram
-2. Bot replies with a pairing code
-3. In Claude Code: `/telegram:access pair <code>`
-4. Lock down: `/telegram:access policy allowlist`
+1. ส่งข้อความอะไรก็ได้ไปที่ bot บน Telegram
+2. Bot ตอบกลับด้วย pairing code
+3. ใน Claude Code: `/telegram:access pair <code>`
+4. ล็อกการเข้าถึง: `/telegram:access policy allowlist`
 
-Done! Chat with your buddy from Telegram or the web UI.
+เรียบร้อย! คุยกับ buddy ได้จาก Telegram หรือหน้าเว็บ
 
 ## MCP Tools
 
-| Tool | Description |
-|------|-------------|
-| `save_memory` | Save facts, preferences, people |
-| `search_memory` | Search saved memories |
-| `list_memories` | Show recent memories |
-| `delete_memory` | Remove a memory by ID |
-| `list_calendar_events` | View upcoming Google Calendar events |
-| `create_calendar_event` | Create a new calendar event |
-| `list_emails` | Read emails from Gmail |
-| `send_email` | Send an email via Gmail |
-| `set_reminder` | Set a timed reminder |
-| `check_reminders` | Check for due reminders |
-| `list_reminders` | Show pending reminders |
-| `delete_reminder` | Remove a reminder by ID |
+| Tool | คำอธิบาย |
+|------|---------|
+| `save_memory` | บันทึกข้อมูล ความชอบ คนรอบข้าง |
+| `search_memory` | ค้นหา memory ที่บันทึกไว้ |
+| `list_memories` | แสดง memory ล่าสุด |
+| `delete_memory` | ลบ memory ตาม ID |
+| `list_calendar_events` | ดูนัดหมายจาก Google Calendar |
+| `create_calendar_event` | สร้างนัดหมายใหม่ |
+| `list_emails` | อ่านอีเมลจาก Gmail |
+| `send_email` | ส่งอีเมลผ่าน Gmail |
+| `set_reminder` | ตั้งเตือนความจำ |
+| `check_reminders` | เช็ค reminder ที่ถึงเวลา |
+| `list_reminders` | แสดง reminder ที่รอดำเนินการ |
+| `delete_reminder` | ลบ reminder ตาม ID |
 
-## Google Calendar & Gmail Setup
+## ตั้งค่า Google Calendar & Gmail
 
-1. Create a project in [Google Cloud Console](https://console.cloud.google.com/)
-2. Enable **Calendar API** and **Gmail API**
-3. Create **OAuth 2.0 credentials** (Desktop app)
-4. Download as `credentials.json` to `~/.personal-buddy/`
-5. First use triggers a browser OAuth flow
+1. สร้างโปรเจกต์ใน [Google Cloud Console](https://console.cloud.google.com/)
+2. เปิดใช้ **Calendar API** และ **Gmail API**
+3. สร้าง **OAuth 2.0 credentials** (Desktop app)
+4. ดาวน์โหลดเป็น `credentials.json` ไปที่ `~/.personal-buddy/`
+5. ใช้ครั้งแรกจะเปิด browser เพื่อทำ OAuth flow
 
-## Architecture
+## สถาปัตยกรรม
 
 ```
 📱 Telegram ──→ Official Telegram Plugin ──┐
 🌐 Browser  ──→ Official Fakechat Plugin ──┤
 💻 Terminal ────────────────────────────────┘
                                             │
-                                     Claude Code (brain)
+                                     Claude Code (สมอง)
                                             │
-                                     CLAUDE.md (personality)
+                                     CLAUDE.md (บุคลิก)
                                             │
                                      MCP Tools Server
                                     (personal-buddy)
@@ -109,45 +109,45 @@ Done! Chat with your buddy from Telegram or the web UI.
                             ┌───────────────┼───────────────┐
                             │               │               │
                          Memory      Google APIs      Reminders
-                       (JSON files) (Calendar/Gmail)  (JSON files)
+                      (ไฟล์ JSON)  (Calendar/Gmail)  (ไฟล์ JSON)
 ```
 
-Follows the same pattern as Claude Code's built-in `/buddy` companion:
+ใช้ pattern เดียวกับ `/buddy` companion ใน Claude Code:
 
-- **Recomputed each session** — CLAUDE.md personality rules, conversation context
-- **Persisted across sessions** — memories, reminders (JSON files in `~/.personal-buddy/`)
+- **คำนวณใหม่ทุกเซสชัน** — กฎบุคลิกจาก CLAUDE.md, บริบทการสนทนา
+- **เก็บถาวรข้ามเซสชัน** — memories, reminders (ไฟล์ JSON ใน `~/.personal-buddy/`)
 
-The `/buddy` companion persists static data (species, rarity, stats) and regenerates personality via Claude API each session. Personal Buddy applies this same pattern: static data persists in JSON, while Claude Code recomputes behavior from CLAUDE.md every session.
+`/buddy` companion เก็บข้อมูลคงที่ (species, rarity, stats) และสร้างบุคลิกใหม่ผ่าน Claude API ทุกเซสชัน Personal Buddy ใช้ pattern เดียวกัน: ข้อมูลคงที่เก็บใน JSON ส่วน Claude Code คำนวณพฤติกรรมจาก CLAUDE.md ใหม่ทุกเซสชัน
 
-## Official vs Third-Party: what this project is based on
+## เปรียบเทียบ Official กับ Third-Party
 
-> **Important:** Early development referenced a third-party blog (claudefa.st) that coined terms like "Bones & Soul" and claimed details about `/buddy` internals. After verifying against the actual source code and official docs, we corrected all references. This table clarifies what's official and what isn't.
+> **สำคัญ:** ช่วงแรกของการพัฒนา เราอ้างอิง blog จากบุคคลที่สาม (claudefa.st) ที่ตั้งชื่อ "Bones & Soul" และอ้างรายละเอียดเกี่ยวกับ `/buddy` หลังจากตรวจสอบกับ source code จริงและ official docs แล้ว เราแก้ไขทุกจุดให้ถูกต้อง ตารางนี้ช่วยแยกแยะว่าอะไรเป็น official อะไรไม่ใช่
 
-| Topic | Third-party blog (claudefa.st) | Official (source code / docs) | This project |
-|-------|-------------------------------|-------------------------------|-------------|
-| **Architecture naming** | "Bones & Soul" | No such terminology in source code — blog coined it | Uses official terms: "persisted" vs "recomputed" |
-| **Hash function** | FNV-1a + Mulberry32 PRNG | LCG PRNG (`Math.imul(seed, 1664525)`) | N/A — not applicable to personal buddy |
-| **Personality** | "Soul" generated by LLM | Claude API generates name/personality from seed each session | CLAUDE.md loaded each session (official [memory system](https://code.claude.com/docs/en/memory)) |
-| **Persistent data** | "Bones" (species, stats) | `bones` object persisted in appState | JSON files in `~/.personal-buddy/` |
-| **Species/Rarity/Stats** | 18 species, 5 rarity tiers, 5 stats | Confirmed in source code | N/A — not applicable to personal buddy |
-| **Telegram integration** | Not mentioned | [Official Telegram plugin](https://code.claude.com/docs/en/channels) | Uses official plugin |
-| **Web UI** | Not mentioned | [Official fakechat plugin](https://code.claude.com/docs/en/channels) | Uses official plugin |
-| **MCP tools** | Not mentioned | [Official MCP protocol](https://code.claude.com/docs/en/mcp) | Custom MCP server with 12 tools |
-| **Extension system** | Not mentioned | [CLAUDE.md + MCP + Channels + Plugins](https://code.claude.com/docs/en/features-overview) | Uses all four official systems |
+| หัวข้อ | Blog บุคคลที่สาม (claudefa.st) | Official (source code / docs) | โปรเจกต์นี้ |
+|-------|-------------------------------|-------------------------------|------------|
+| **ชื่อสถาปัตยกรรม** | "Bones & Soul" | ไม่มีคำนี้ใน source code — blog ตั้งเอง | ใช้คำ official: "persisted" vs "recomputed" |
+| **Hash function** | FNV-1a + Mulberry32 PRNG | LCG PRNG (`Math.imul(seed, 1664525)`) | ไม่เกี่ยว — ไม่ได้ใช้ใน personal buddy |
+| **บุคลิก** | "Soul" สร้างจาก LLM | Claude API สร้างชื่อ/บุคลิกจาก seed ทุกเซสชัน | CLAUDE.md โหลดทุกเซสชัน (official [memory system](https://code.claude.com/docs/en/memory)) |
+| **ข้อมูลถาวร** | "Bones" (species, stats) | `bones` object เก็บใน appState | ไฟล์ JSON ใน `~/.personal-buddy/` |
+| **Species/Rarity/Stats** | 18 species, 5 rarity, 5 stats | ยืนยันแล้วว่ามีจริงใน source code | ไม่เกี่ยว — ไม่ได้ใช้ใน personal buddy |
+| **Telegram** | ไม่ได้กล่าวถึง | [Official Telegram plugin](https://code.claude.com/docs/en/channels) | ใช้ official plugin |
+| **Web UI** | ไม่ได้กล่าวถึง | [Official fakechat plugin](https://code.claude.com/docs/en/channels) | ใช้ official plugin |
+| **MCP tools** | ไม่ได้กล่าวถึง | [Official MCP protocol](https://code.claude.com/docs/en/mcp) | MCP server 12 tools |
+| **ระบบ extension** | ไม่ได้กล่าวถึง | [CLAUDE.md + MCP + Channels + Plugins](https://code.claude.com/docs/en/features-overview) | ใช้ทั้ง 4 ระบบ official |
 
-**TL;DR:** The `/buddy` companion's _pattern_ (persist static data + recompute behavior each session) is real and verified in source code. But the terminology "Bones & Soul" is not official — it was invented by a third-party blog. This project is built entirely on official Claude Code APIs and extension systems.
+**สรุป:** _pattern_ ของ `/buddy` (เก็บข้อมูลคงที่ + คำนวณพฤติกรรมใหม่ทุกเซสชัน) มีอยู่จริง ยืนยันจาก source code แล้ว แต่ชื่อ "Bones & Soul" ไม่ใช่ official — เป็นคำที่ blog บุคคลที่สามตั้งขึ้น โปรเจกต์นี้สร้างบน official Claude Code APIs และระบบ extension ทั้งหมด
 
-## Project Structure
+## โครงสร้างโปรเจกต์
 
 ```
 personal-buddy/
-├── CLAUDE.md          # Personality rules (recomputed each session)
-├── mcp_server.py      # MCP tools server (12 tools, no API key needed)
-├── memory.py          # Persistent memory store (persisted across sessions)
-├── google_tools.py    # Google Calendar + Gmail integration
-├── scheduler.py       # Reminder storage
-├── config.py          # Settings (memory dir, credentials path)
-├── setup.sh           # One-time setup script
+├── CLAUDE.md          # กฎบุคลิก (คำนวณใหม่ทุกเซสชัน)
+├── mcp_server.py      # MCP tools server (12 tools, ไม่ต้องใช้ API key)
+├── memory.py          # Memory store ถาวร (เก็บข้ามเซสชัน)
+├── google_tools.py    # Google Calendar + Gmail
+├── scheduler.py       # ระบบเตือนความจำ
+├── config.py          # การตั้งค่า (memory dir, credentials path)
+├── setup.sh           # script ติดตั้งครั้งเดียว
 └── requirements.txt   # Python dependencies (mcp, google-api)
 ```
 
