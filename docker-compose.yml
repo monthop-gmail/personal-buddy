@@ -1,0 +1,12 @@
+services:
+  buddy:
+    build: .
+    container_name: personal-buddy
+    env_file: .env
+    volumes:
+      - buddy-data:/data/memory
+    stdin_open: true
+    tty: true
+
+volumes:
+  buddy-data:
