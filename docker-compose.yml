@@ -1,4 +1,5 @@
 services:
+  # CLI mode (interactive chat)
   buddy:
     build: .
     container_name: personal-buddy
@@ -7,6 +8,16 @@ services:
       - buddy-data:/data/memory
     stdin_open: true
     tty: true
+
+  # Telegram bot mode
+  telegram:
+    build: .
+    container_name: personal-buddy-telegram
+    env_file: .env
+    volumes:
+      - buddy-data:/data/memory
+    command: ["python", "telegram_bot.py"]
+    restart: unless-stopped
 
 volumes:
   buddy-data:
